@@ -4,5 +4,22 @@ The Unified Robot
 
 This is all the code used to control the UPMars Robot as one unified repository
 
+## Dependencies
+- Python 3
+- [RpiMotorLib](https://github.com/gavinlyonsrepo/RpiMotorLib) 
+- [pysabertooth](https://github.com/MomsFriendlyRobotCompany/pysabertooth)
+
+## Insllation/Setup
+Install RpiMotorLib: `pip install RpiMotorLib`
+
+Install pysabertooth: `pip install pysabertooth`
+
+Enable serial pins on Raspberry Pi: `sudo raspi-config`
+
+Start rpigpio dameon: `sudo rpigpiod`
+
+## Launching
+`python3 robot.py`
+
 ## Robot
 This will be updated shortly.
