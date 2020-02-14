@@ -9,3 +9,4 @@ saber = Sabertooth('/dev/serial0', baudrate=9600, address=128)
 servo  = rpi_pservo_lib.ServoPigpio()
 
 saber.drive(1, 50)
+servo.servo_move(12, servo.convert_from_degree(0), verbose=True)
