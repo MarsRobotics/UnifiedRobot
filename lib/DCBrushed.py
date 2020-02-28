@@ -14,7 +14,9 @@ class DCBrushed:
             motor_num = 1 or 2; the port number of the motor controller of the sabertooth;
                         there are two motors available for each controller
         """
-        self.motor = Sabertooth('/dev/serial0', baudrate=9600, address=128)
+        self.address = address
+        self.motor_num = motor_num
+        self.motor = Sabertooth('/dev/serial0', baudrate=9600, address=self.address)
         
     def drive(self, speed):
         """
