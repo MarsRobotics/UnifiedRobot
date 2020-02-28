@@ -12,6 +12,3 @@ class Servo:
         pwm = self.motor.convert_from_degree(degree)
         self.motor.servo_move(self.pin, pwm, verbose=self.verbose)
         self.angle = degree
-
-    def setVerbose(self, isVerbose):
-        self.verbose = isVerbose
