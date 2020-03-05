@@ -4,11 +4,17 @@ from lib import Stepper
 
 def stepperTest():
     while True:
-        steps = int(input("Steps: "))
-        delay = int(input("Delay: "))
-        direction = int(input("Direction: "))
-        stepper.step(steps, delay, direction)
+        command = input("Command (s, e, d)")
+        if command == "s":
+            steps = int(input("Steps: "))
+            delay = float(input("Delay: "))
+            direction = int(input("Direction: "))
+            stepper.step(steps, delay, direction)
+        elif command == "e":
+            stepper.enable()
+        else:
+            stepper.disable()
 
 if __name__ == '__main__':
-    stepper = Stepper(18, 23, 24, 0.0005)
+    stepper = Stepper.Stepper(24, 23, 18, 0.0005)
     stepperTest()
