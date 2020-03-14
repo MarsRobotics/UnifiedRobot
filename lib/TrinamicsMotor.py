@@ -10,7 +10,7 @@ myInterface = connectionManager.connect()
 module = TMCM_1670(myInterface)
 
 # motor configuration
-module.setMaxTorque(2000)
+module.setMaxTorque(3000)
 module.showMotorConfiguration()
 
 # encoder configuration
@@ -20,16 +20,16 @@ module.showEncoderConfiguration()
 module.setMaxVelocity(4000)
 module.setAcceleration(4000)
 module.setRampEnabled(1)
-module.setTargetReachedVelocity(500)
-module.setTargetReachedDistance(10)
+module.setTargetReachedVelocity(100)
+module.setTargetReachedDistance(1000)
 module.setMotorHaltedVelocity(5)
 module.showMotionConfiguration()
 
 # PI configuration
-module.setTorquePParameter(1000)
-module.setTorqueIParameter(1000)
-module.setVelocityPParameter(2000)
-module.setVelocityIParameter(1000)
+module.setTorquePParameter(2000) #4000 #2:000
+module.setTorqueIParameter(2000) #2000
+module.setVelocityPParameter(800) #1000
+module.setVelocityIParameter(600) #500
 module.setPositionPParameter(300)
 module.showPIConfiguration()
 
@@ -38,18 +38,26 @@ module.setDigitalOutput(0);
 
 # sync actual position with encoder N-Channel 
 module.setActualPosition(0)
-module.rotate(200)
-time.sleep(0.5)
-module.clearOnceOnNChannel()
-time.sleep(0.5)
 
-# move to zero position
-module.moveToPosition(0)
-while not module.positionReached():
-    print("target position: " + str(module.targetPosition()) + " actual position: " + str(module.actualPosition()))
-    time.sleep(0.2)
+# move to first position
+while True:
+    vel = input()
+    module.setAxisParameter(155, int(vel))
+    #while True:
+        #print("Current: " + str(module.axisParameter(150)))
+        #time.sleep(0.5)
 
-# the actual position of 0 is now located at the N-Channel
+#module.moveToPosition(3000000)
+#while not module.positionReached():
+    #print("target position: " + str(module.targetPosition()) + " actual position: " + str(module.actualPosition()))
+    #print("Current: " + str(module.axisParameter(150)))
+    #time.sleep(0.2)
+#print("Stage 1 Complete")
+#module.moveToPosition(6000000)
+#while not module.positionReached():
+    #print("Current: " + str(module.axisParameter(150)))
+    #print("target position: " + str(module.targetPosition()) + " actual position: " + str(module.actualPosition()))
+    #time.sleep(0.2)
 
 print("Ready.")
 myInterface.close()
