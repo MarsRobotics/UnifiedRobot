@@ -3,61 +3,61 @@ import PyTrinamic
 from PyTrinamic.connections.ConnectionManager import ConnectionManager
 from PyTrinamic.modules.TMCM_1670 import TMCM_1670
 
-PyTrinamic.showInfo()
-connectionManager = ConnectionManager("--interface socketcan_tmcl --host-id 2 --module-id 1".split())
-myInterface = connectionManager.connect()
+class TrinamicsMotor:
 
-module = TMCM_1670(myInterface)
+    def __init__(self, motor_id=1):
+        PyTrinamic.showInfo()
+        msg = "--interface socketcan_tmcl --host-id 2 --module-id {module:d}".format(module = motor_id)
+        connectionManager = ConnectionManager(msg.split())
+        self.myInterface = connectionManager.connect()
 
-# motor configuration
-module.setMaxTorque(3000)
-module.showMotorConfiguration()
+        self.module = TMCM_1670(self.myInterface)
 
-# encoder configuration
-module.showEncoderConfiguration()
+        # motor configuration
+        self.module.setMaxTorque(3000)
+        self.module.showMotorConfiguration()
 
-# motion settings
-module.setMaxVelocity(4000)
-module.setAcceleration(4000)
-module.setRampEnabled(1)
-module.setTargetReachedVelocity(100)
-module.setTargetReachedDistance(1000)
-module.setMotorHaltedVelocity(5)
-module.showMotionConfiguration()
+        # encoder configuration
+        self.module.showEncoderConfiguration()
 
-# PI configuration
-module.setTorquePParameter(2000) #4000 #2:000
-module.setTorqueIParameter(2000) #2000
-module.setVelocityPParameter(800) #1000
-module.setVelocityIParameter(600) #500
-module.setPositionPParameter(300)
-module.showPIConfiguration()
+        # motion settings
+        self.module.setMaxVelocity(4000)
+        self.module.setAcceleration(4000)
+        self.module.setRampEnabled(1)
+        self.module.setTargetReachedVelocity(100)
+        self.module.setTargetReachedDistance(1000)
+        self.module.setMotorHaltedVelocity(5)
+        self.module.showMotionConfiguration()
 
-# use out_0 output for enable input (directly shortened)
-module.setDigitalOutput(0);
+        # PI configuration
+        self.module.setTorquePParameter(2000) #4000 #2:000
+        self.module.setTorqueIParameter(2000) #2000
+        self.module.setVelocityPParameter(800) #1000
+        self.module.setVelocityIParameter(600) #500
+        self.module.setPositionPParameter(300)
+        self.module.showPIConfiguration()
 
-# sync actual position with encoder N-Channel 
-module.setActualPosition(0)
+        # use out_0 output for enable input (directly shortened)
+        self.module.setDigitalOutput(0);
 
-# move to first position
-while True:
-    vel = input()
-    module.setAxisParameter(155, int(vel))
-    #while True:
-        #print("Current: " + str(module.axisParameter(150)))
-        #time.sleep(0.5)
+        # sync actual position with encoder N-Channel 
+        self.module.setActualPosition(0)
 
-#module.moveToPosition(3000000)
-#while not module.positionReached():
-    #print("target position: " + str(module.targetPosition()) + " actual position: " + str(module.actualPosition()))
-    #print("Current: " + str(module.axisParameter(150)))
-    #time.sleep(0.2)
-#print("Stage 1 Complete")
-#module.moveToPosition(6000000)
-#while not module.positionReached():
-    #print("Current: " + str(module.axisParameter(150)))
-    #print("target position: " + str(module.targetPosition()) + " actual position: " + str(module.actualPosition()))
-    #time.sleep(0.2)
+    def __del__(self):
+        self.setVelocity(0)
+        self.myInterface.close()
 
-print("Ready.")
-myInterface.close()
+    def getTorque(self):
+        return int(self.module.axisParameter(150))
+    def getPosition(self):
+        return int(self.module.axisParameter(1))
+    def getVelocity(self):
+        return int(self.module.axisParameter(3))
+    def getVoltage(self):
+        return float(self.module.axisParameter(151))/10
+    def setPosition(self, pos):
+        self.module.setAxisParameter(0, int(pos))
+    def setVelocity(self, vel):
+        self.module.setAxisParameter(2, int(vel))
+    def endConnection(self):
+        myInterface.close()
