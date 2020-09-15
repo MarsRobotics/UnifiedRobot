@@ -6,11 +6,12 @@ from PyTrinamic.modules.TMCM_1670 import TMCM_1670
 class TrinamicsMotor:
 
     def __init__(self, motor_id=1):
-        PyTrinamic.showInfo()
-        msg = "--interface socketcan_tmcl --host-id 2 --module-id {module:d}".format(module = motor_id)
+        msg = "--interface socketcan_tmcl --host-id 2 --module-id {module}".format(module = motor_id)
+        print(msg)
         connectionManager = ConnectionManager(msg.split())
         self.myInterface = connectionManager.connect()
 
+        self.motorID = motor_id
         self.module = TMCM_1670(self.myInterface)
 
         # motor configuration
@@ -44,20 +45,22 @@ class TrinamicsMotor:
         self.module.setActualPosition(0)
 
     def __del__(self):
-        self.setVelocity(0)
+        self.setTorque()#Sets the target torque(current) to 0
         self.myInterface.close()
 
+    def getID(self):
+        return int(self.motorID)
     def getTorque(self):
-        return int(self.module.axisParameter(150))
+        return (self.module.axisParameter(150))
     def getPosition(self):
-        return int(self.module.axisParameter(1))
+        return (self.module.axisParameter(1))
     def getVelocity(self):
-        return int(self.module.axisParameter(3))
+        return (self.module.axisParameter(3))
     def getVoltage(self):
-        return float(self.module.axisParameter(151))/10
+        return str(float(self.module.axisParameter(151))/10)
     def setPosition(self, pos):
         self.module.setAxisParameter(0, int(pos))
     def setVelocity(self, vel):
         self.module.setAxisParameter(2, int(vel))
-    def endConnection(self):
-        myInterface.close()
+    def setTorque(self):
+        self.module.setAxisParameter(155, 0)
