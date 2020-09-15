@@ -7,7 +7,6 @@ class TrinamicsMotor:
 
     def __init__(self, motor_id=1):
         msg = "--interface socketcan_tmcl --host-id 2 --module-id {module}".format(module = motor_id)
-        print(msg)
         connectionManager = ConnectionManager(msg.split())
         self.myInterface = connectionManager.connect()
 
@@ -16,10 +15,10 @@ class TrinamicsMotor:
 
         # motor configuration
         self.module.setMaxTorque(3000)
-        self.module.showMotorConfiguration()
+        #self.module.showMotorConfiguration()
 
         # encoder configuration
-        self.module.showEncoderConfiguration()
+        #self.module.showEncoderConfiguration()
 
         # motion settings
         self.module.setMaxVelocity(4000)
@@ -28,7 +27,7 @@ class TrinamicsMotor:
         self.module.setTargetReachedVelocity(100)
         self.module.setTargetReachedDistance(1000)
         self.module.setMotorHaltedVelocity(5)
-        self.module.showMotionConfiguration()
+        #self.module.showMotionConfiguration()
 
         # PI configuration
         self.module.setTorquePParameter(2000) #4000 #2:000
@@ -36,7 +35,7 @@ class TrinamicsMotor:
         self.module.setVelocityPParameter(800) #1000
         self.module.setVelocityIParameter(600) #500
         self.module.setPositionPParameter(300)
-        self.module.showPIConfiguration()
+        #self.module.showPIConfiguration()
 
         # use out_0 output for enable input (directly shortened)
         self.module.setDigitalOutput(0);
@@ -45,19 +44,29 @@ class TrinamicsMotor:
         self.module.setActualPosition(0)
 
     def __del__(self):
-        self.setTorque()#Sets the target torque(current) to 0
+        try:
+            self.setTorque()#Sets the target torque(current) to 0
+        except:
+            pass
         self.myInterface.close()
 
     def getID(self):
         return int(self.motorID)
+
     def getTorque(self):
-        return (self.module.axisParameter(150))
+        val = self.module.axisParameter(150)
+        return val if val < 2147483647 else (val - 2147483647*2)
+
     def getPosition(self):
-        return (self.module.axisParameter(1))
+        val = self.module.axisParameter(1)
+        return val if val < 2147483647 else (val - 2147483647*2)
+
     def getVelocity(self):
-        return (self.module.axisParameter(3))
+        val = self.module.axisParameter(3)
+        return val if val < 2147483647 else (val - 2147483647*2)
+
     def getVoltage(self):
-        return str(float(self.module.axisParameter(151))/10)
+        return float(self.module.axisParameter(151))/10
     def setPosition(self, pos):
         self.module.setAxisParameter(0, int(pos))
     def setVelocity(self, vel):

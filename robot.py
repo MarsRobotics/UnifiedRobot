@@ -13,17 +13,29 @@ def DCTest():
         dc_motor.drive(speed)
 
 def TrinamicTest():
-    test = input("Enter the ID of the motor you would like to connect")
     motors = []
-    while test is not "X":
-        motors.append(TrinamicsMotor(test))
-        test = input("Enter the next ID (or X to continue)")
+    print("Checking for motors on IDs 1-6")
+    for i in range(1, 7):
+        if i == 2:
+            continue
+        try:
+            motors.append(TrinamicsMotor(i))
+        except:
+            continue
+        print("Motor found at ID {num:}.".format(num = i))
     print("Valid command are V(elocity) T(orque) P(osition) S(upply Voltage)")
     print("Supply Voltage can only be read")
     print("Setting Torque will set torque to 0 regardless of value for safety reasons")
     while True:
-        cmd = input("Enter a command (ID R/W CMD VAL):")
-        [num, rw, cmd, val] = cmd.split()
+        command = input("Enter a command (ID R/W CMD VAL):")
+        try:
+            [num, rw, cmd, val] = command.split()
+        except:
+            try:
+                [num, rw, cmd] = command.split()
+            except:
+                print("Improper command format.")
+                continue
         m = None
         num = int(num)
         for motor in motors:
@@ -38,7 +50,10 @@ def TrinamicTest():
             if cmd == "T":
                 print(m.getTorque())
             if cmd == "S":
-                print(m.getVoltage())
+                v = m.getVoltage()
+                if v < 21:
+                    print("LOW VOLTAGE")
+                print(v)
             if cmd == "P":
                 print(m.getPosition())
         else:
