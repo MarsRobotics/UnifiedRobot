@@ -2,6 +2,7 @@ from lib.Servo import Servo
 from lib.DCBrushed import DCBrushed
 from lib.TrinamicsMotor import TrinamicsMotor
 from lib.Stepper import Stepper
+from time import sleep
 
 class Robot:
     def __init__(self):
@@ -11,22 +12,24 @@ class Robot:
         min_can_id = 1
         max_can_id = 7
         self.art_motors = []
-        art_disable_pins = [[0,1,2], [16,17,18]] #TODO consider tying all these to one pin... Do we ever need to enable individual articulation motors?
-        art_dir_pins = [[3,4,5], [19,20,21]]
-        art_step_pins = [[6,12,13], [22,23,24]]
+        art_disable_pins = [[0,1,2], [14,15,16]] #TODO consider tying all these to one pin... Do we ever need to enable individual articulation motors?
+        art_dir_pins = [[3,4,5], [17,18,19]]
+        art_step_pins = [[6,12,13], [20,21,22]]
         for i in range(min_can_id, max_can_id):
             if i == can_host_id:
                 continue
             try:
                 self.drive_motors.append(TrinamicsMotor(i))#Initialize Trinamic Motors for drive
-            except:
+            except Exception as e:
+                print(e)
                 continue
             print("Motor found at ID {num:}.".format(num = i))
         for i in range(2):
             for j in range(3):
                 try:
                     self.art_motors.append(Stepper(art_disable_pins[i][j], art_dir_pins[i][j], art_step_pins[i][j]))#Initialize stepper motors for articulation
-                except:
+                except Exception as e:
+                    print(e)
                     continue
         #TODO add DC Brushed motors as needed
 
@@ -34,17 +37,19 @@ class Robot:
         #TODO Add reading/writing the state of the robot from/to a file? Most importantly, save the a-joint angles.
 
     def articulate(self, angles):
+        return
         #TODO Unlock the solenoid pin
         for i in range(2):
             for j in range(3):
-                self.art_motors[i][j].setAngle(angles[j])
+                print(j+i*3)
+                self.art_motors[j+i*3].setAngle(angles[j])
                 #TODO Make this non-blocking... Start on a thread that will callback?
                 #TODO Make the drive motors run at the correct speed as well
         #TODO Lock the solenoid pin
             
 
     def driveForward(self):
-        self.articulate(art_angles[1])
+        self.articulate(self.art_angles[1])
         for motor in self.drive_motors:
             motor.setVelocity(self.drive_speed)#Note that this is already non-blocking but will need to be disabled. I would recommend calling setTorque()
     
@@ -121,7 +126,10 @@ def TrinamicTest():
                 print("Driver off")
 
 if __name__ == '__main__':
-    test = input("Enter the test you would like to run:")
+    robot = Robot()
+    robot.driveForward()
+    sleep(10)
+    '''test = input("Enter the test you would like to run:")
     if test == "servo":
         servo = Servo(18)
         servoTest()
@@ -129,4 +137,4 @@ if __name__ == '__main__':
         dc_motor = DCBrushed(128, 1)
         DCTest()
     if test == "tri":
-        TrinamicTest()
+        TrinamicTest()'''

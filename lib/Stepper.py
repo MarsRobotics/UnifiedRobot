@@ -3,7 +3,7 @@ from time import sleep
 
 class Stepper:
 
-    def __init__(self, disable_pin, dir_pin, step_pin, steps_per_rev=400, revs_per_turn=60, default_delay=0.001):
+    def __init__(self, disable_pin, dir_pin, step_pin, steps_per_rev=400, revs_per_turn=60, default_delay=0.0005):
         """
         A stepper motor class originally made for the Geckodrive G213V
             
@@ -40,7 +40,8 @@ class Stepper:
 
     def setAngle(self, angle):
         step_count = self.steps_per_turn * (self.angle - angle) / 360
-        step(step_count, self.default_delay)
+        print(step_count)
+        self.step(int(step_count), self.default_delay)
 
     def step(self, step_count, delay, direction=0):
         #enable the motor and set the direction
@@ -56,7 +57,7 @@ class Stepper:
         #step the motor and ramp the initial delay to the passed delay
         for i in range(step_count):
             if my_delay > delay:
-                my_delay -= 0.0000001
+                my_delay -= 0.000001
             self.pi.write(self.step_pin, 1)
             sleep(my_delay)
             self.pi.write(self.step_pin, 0)
