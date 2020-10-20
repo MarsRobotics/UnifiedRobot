@@ -26,9 +26,19 @@ class Stepper:
         self.dir_pin = dir_pin
         self.step_pin = step_pin
         self.default_delay = default_delay
-        self.pi.set_mode(disable_pin, pigpio.OUTPUT)
-        self.pi.set_mode(dir_pin, pigpio.OUTPUT)
-        self.pi.set_mode(step_pin, pigpio.OUTPUT)
+        try:
+            self.pi.set_mode(disable_pin, pigpio.OUTPUT)
+        except Exception as e:
+            print('Disable pin failure')
+        try:
+            self.pi.set_mode(dir_pin, pigpio.OUTPUT)
+        except Exception as e:
+            print('Direction pin failure')
+        try:
+            self.pi.set_mode(step_pin, pigpio.OUTPUT)
+        except Exception as e:
+            print('Step pin failure')
+
         self.position = 0
         self.disable()#default the stepper to being powered off
 

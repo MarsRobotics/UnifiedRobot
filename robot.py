@@ -14,7 +14,7 @@ class Robot:
         max_can_id = 7
         self.art_motors = []
         pi = pigpio.pi()
-        art_disable_pins = [[0,1,2], [14,15,16]] #TODO consider tying all these to one pin... Do we ever need to enable individual articulation motors?
+        art_disable_pins = [[2,2,2], [2,2,2]] #TODO consider tying all these to one pin... Do we ever need to enable individual articulation motors?
         art_dir_pins = [[3,4,5], [17,18,19]]
         art_step_pins = [[6,12,13], [20,21,22]]
         for i in range(min_can_id, max_can_id):
@@ -31,7 +31,6 @@ class Robot:
                 try:
                     self.art_motors.append(Stepper(art_disable_pins[i][j], art_dir_pins[i][j], art_step_pins[i][j], pi))#Initialize stepper motors for articulation
                 except Exception as e:
-                    print(e)
                     continue
         #TODO add DC Brushed motors as needed
 
