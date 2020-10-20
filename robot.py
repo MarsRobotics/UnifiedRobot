@@ -3,6 +3,7 @@ from lib.DCBrushed import DCBrushed
 from lib.TrinamicsMotor import TrinamicsMotor
 from lib.Stepper import Stepper
 from time import sleep
+import pigpio
 
 class Robot:
     def __init__(self):
@@ -12,6 +13,7 @@ class Robot:
         min_can_id = 1
         max_can_id = 7
         self.art_motors = []
+        pi = pigpio.pi()
         art_disable_pins = [[0,1,2], [14,15,16]] #TODO consider tying all these to one pin... Do we ever need to enable individual articulation motors?
         art_dir_pins = [[3,4,5], [17,18,19]]
         art_step_pins = [[6,12,13], [20,21,22]]
@@ -27,7 +29,7 @@ class Robot:
         for i in range(2):
             for j in range(3):
                 try:
-                    self.art_motors.append(Stepper(art_disable_pins[i][j], art_dir_pins[i][j], art_step_pins[i][j]))#Initialize stepper motors for articulation
+                    self.art_motors.append(Stepper(art_disable_pins[i][j], art_dir_pins[i][j], art_step_pins[i][j], pi))#Initialize stepper motors for articulation
                 except Exception as e:
                     print(e)
                     continue

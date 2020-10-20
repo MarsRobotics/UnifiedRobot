@@ -3,7 +3,7 @@ from time import sleep
 
 class Stepper:
 
-    def __init__(self, disable_pin, dir_pin, step_pin, steps_per_rev=400, revs_per_turn=60, default_delay=0.0005):
+    def __init__(self, disable_pin, dir_pin, step_pin, pi, steps_per_rev=400, revs_per_turn=60, default_delay=0.0005):
         """
         A stepper motor class originally made for the Geckodrive G213V
             
@@ -21,7 +21,7 @@ class Stepper:
         self.steps_per_turn = steps_per_rev*revs_per_turn #How many steps the motor must turn to turn the output device one full revolution
         self.angle = 0
 
-        self.pi = pigpio.pi()
+        self.pi = pi
         self.dis_pin = disable_pin
         self.dir_pin = dir_pin
         self.step_pin = step_pin
