@@ -3,7 +3,11 @@ from time import sleep
 
 class Stepper:
 
+<<<<<<< HEAD
     def __init__(self, disable_pin, dir_pin, step_pin, pi, steps_per_rev=200, revs_per_turn=60, default_delay=0.00015):
+=======
+    def __init__(self, disable_pin, dir_pin, step_pin, pi, steps_per_rev=400, revs_per_turn=60, start_delay=2.5, min_delay=0.55):
+>>>>>>> 9fe2eac2274e26168c7877f17b2936577f5f6ef1
         """
         A stepper motor class originally made for the Geckodrive G213V
             
@@ -25,7 +29,8 @@ class Stepper:
         self.dis_pin = disable_pin
         self.dir_pin = dir_pin
         self.step_pin = step_pin
-        self.default_delay = default_delay
+        self.start_delay = start_delay
+        self.min_delay= min_delay
         try:
             self.pi.set_mode(disable_pin, pigpio.OUTPUT)
         except Exception as e:
@@ -52,7 +57,7 @@ class Stepper:
         step_count = self.steps_per_turn * (self.angle - angle) / 360
         self.angle = angle
         print(step_count)
-        self.step(int(step_count), self.default_delay)
+        self.step(int(step_count), self.min_delay)
 
     def step(self, step_count, delay, direction=0):
         #enable the motor and set the direction
@@ -62,16 +67,16 @@ class Stepper:
             step_count = abs(step_count)
         self.pi.write(self.dir_pin, direction)
         sleep(1)
-        
-        my_delay = max(delay, self.default_delay)
+        delay = max(self.min_delay, delay)
+        my_delay = max(delay, self.start_delay)
 
         #step the motor and ramp the initial delay to the passed delay
         for i in range(step_count):
             if my_delay > delay:
-                my_delay -= 0.000001
+                my_delay -= 0.05#Adjust as needed
             self.pi.write(self.step_pin, 1)
-            sleep(my_delay)
+            sleep(my_delay/1000)
             self.pi.write(self.step_pin, 0)
-            sleep(my_delay)
+            sleep(my_delay/1000)
             self.position += 1 if (direction == 0) else -1
         self.disable()
