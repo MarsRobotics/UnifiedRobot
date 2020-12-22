@@ -29,7 +29,7 @@ class Robot:
         for i in range(2):
             for j in range(3):
                 try:
-                    self.art_motors.append(Stepper(art_disable_pins[i][j], art_dir_pins[i][j], art_step_pins[i][j], pi))#Initialize stepper motors for articulation
+                    self.art_motors.append(Stepper(art_disable_pins[i][j], art_dir_pins[i][j], art_step_pins[i][j], pi, 200, 1))#Initialize stepper motors for articulation
                 except Exception as e:
                     continue
         #TODO add DC Brushed motors as needed
@@ -38,11 +38,9 @@ class Robot:
         #TODO Add reading/writing the state of the robot from/to a file? Most importantly, save the a-joint angles.
 
     def articulate(self, angles):
-        return
         #TODO Unlock the solenoid pin
         for i in range(2):
             for j in range(3):
-                print(j+i*3)
                 self.art_motors[j+i*3].setAngle(angles[j])
                 #TODO Make this non-blocking... Start on a thread that will callback?
                 #TODO Make the drive motors run at the correct speed as well
@@ -129,7 +127,7 @@ def TrinamicTest():
 if __name__ == '__main__':
     robot = Robot()
     robot.driveForward()
-    sleep(10)
+    sleep(5)
     '''test = input("Enter the test you would like to run:")
     if test == "servo":
         servo = Servo(18)
