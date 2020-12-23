@@ -54,9 +54,9 @@ class Stepper:
         step_count = self.steps_per_turn * (self.angle - angle) / 360
         self.angle = angle
         print(step_count)
-        self.step(int(step_count))
+        self.step(int(step_count), self.min_delay)
 
-    def step(self, step_count, delay=self.min_delay, direction=0):
+    def step(self, step_count, delay, direction=0):
         self.enable()
         if step_count < 0:
             direction = 0 if direction == 1 else 1
