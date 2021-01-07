@@ -3,7 +3,7 @@ from time import sleep
 
 class Stepper:
 
-    def __init__(self, disable_pin, dir_pin, step_pin, pi, steps_per_rev=200, revs_per_turn=60, start_delay=0.5, min_delay=0.15):
+    def __init__(self, disable_pin, dir_pin, step_pin, pi, steps_per_rev=200, revs_per_turn=60, delay=0.15):
         """
         A stepper motor class originally made for the Geckodrive G213V
             
@@ -16,18 +16,19 @@ class Stepper:
             dir_pin: Pin for setting the turning direction of the stepper
             step_pin: Pin for stepping the motor
             position: the number of steps the stepper has gone from its initial state
-            start_delay: the initial delay to run the stepper at (will ramp up to the speed if the delay is smaller than the default)
-            min_delay: the smallest delay achievable by the motor. Will not allow a delay smaller than this
+            delay: the smallest delay achievable by the motor. Will not allow a delay smaller than this
         """
         self.steps_per_turn = steps_per_rev*revs_per_turn #How many steps the motor must turn to turn the output device one full revolution
-        self.angle = 0
+        self.curr_angle = 0
+        self.step_count = 0
+        self.position = 0
+        self.direction = 0
 
         self.pi = pi
         self.dis_pin = disable_pin
         self.dir_pin = dir_pin
         self.step_pin = step_pin
-        self.start_delay = start_delay
-        self.min_delay= min_delay
+        self.delay= delay
         try:
             self.pi.set_mode(disable_pin, pigpio.OUTPUT)
         except Exception as e:
@@ -51,45 +52,20 @@ class Stepper:
         self.pi.write(self.dis_pin, 1)#disable the stepper. Let's it move freely, but does not take power
 
     def setAngle(self, angle):
-        step_count = self.steps_per_turn * (self.angle - angle) / 360
-        self.angle = angle
-        print(step_count)
-        self.step(int(step_count), self.min_delay)
-
-    def step(self, step_count, delay, direction=0):
+        self.curr_angle = self.position * 360 / self.steps_per_turn
+        self.step_count = self.steps_per_turn * (self.curr_angle - angle) / 360
+        self.direction = 0 if self.step_count > 0 else 1
+        self.pi.write(self.dir_pin, self.direction)
         self.enable()
-        if step_count < 0:
-            direction = 0 if direction == 1 else 1
-            step_count = abs(step_count)
-        self.pi.write(self.dir_pin, direction)
-        sleep(1)
-        my_delay = max(self.min_delay, delay)
-        for i in range(step_count):
-            self.pi.write(self.step_pin, 1)
-            sleep(my_delay/1000)
-            self.pi.write(self.step_pin, 0)
-            sleep(my_delay/1000)
-            self.position += 1 if (direction == 0) else -1
-        self.disable()
 
-    def ramp_step(self, step_count, delay, direction=0):
-        #enable the motor and set the direction
-        self.enable()
-        if step_count < 0:
-            direction = 0 if direction == 1 else 1
-            step_count = abs(step_count)
-        self.pi.write(self.dir_pin, direction)
-        sleep(1)
-        delay = max(self.min_delay, delay)
-        my_delay = max(delay, self.start_delay)
+    def step(self):
+        if self.step_count == 0:
+            self.disable()
+            return
+        self.pi.write(self.step_pin, 1)
+        sleep(delay/1000)
+        self.pi.write(self.step_pin, 0)
+        self.position += 1 if (self.direction == 0) else -1
 
-        #step the motor and ramp the initial delay to the passed delay
-        for i in range(step_count):
-            if my_delay > delay:
-                my_delay -= 0.05#Adjust as needed
-            self.pi.write(self.step_pin, 1)
-            sleep(my_delay/1000)
-            self.pi.write(self.step_pin, 0)
-            sleep(my_delay/1000)
-            self.position += 1 if (direction == 0) else -1
-        self.disable()
+    def getAngle(self):
+        return self.curr_angle
