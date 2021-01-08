@@ -67,9 +67,12 @@ class TrinamicsMotor:
 
     def getVoltage(self):
         return float(self.module.axisParameter(151))/10
+
     def setPosition(self, pos):
         self.module.setAxisParameter(0, int(pos))
+
     def setVelocity(self, vel):
         self.module.setAxisParameter(2, int(vel))
+
     def setTorque(self):
         self.module.setAxisParameter(155, 0)

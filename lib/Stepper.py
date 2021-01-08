@@ -23,6 +23,7 @@ class Stepper:
         self.step_count = 0
         self.position = 0
         self.direction = 0
+        self.running = False
 
         self.pi = pi
         self.dis_pin = disable_pin
@@ -56,11 +57,13 @@ class Stepper:
         self.step_count = self.steps_per_turn * (self.curr_angle - angle) / 360
         self.direction = 0 if self.step_count > 0 else 1
         self.pi.write(self.dir_pin, self.direction)
+        self.running = True
         self.enable()
 
     def step(self):
         if self.step_count == 0:
             self.disable()
+            self.running = False
             return
         self.pi.write(self.step_pin, 1)
         sleep(delay/1000)
@@ -68,4 +71,8 @@ class Stepper:
         self.position += 1 if (self.direction == 0) else -1
 
     def getAngle(self):
+        self.curr_angle = self.position * 360 / self.steps_per_turn
         return self.curr_angle
+
+    def isRunning(self):
+        return self.running
