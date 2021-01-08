@@ -1,9 +1,30 @@
 from lib.TrinamicsMotor import TrinamicsMotor
 from lib.Stepper import Stepper
 import pigpio
+import rospy
+from std_msgs.msg import Float64
 
 class control_loop:
+    def callback0(data):
+        self.wheel_left = data
+        self.wheel_update = True
+    def callback1(data):
+        self.wheel_right = data
+        self.wheel_update = True
+    def callback2(data):
+        self.ankle_left = data
+        self.ankle_update = True
+    def callback3(data):
+        self.ankle_right = data
+        self.ankle_update = True
+
     def __init__(self):
+        rospy.init_node('motor_driver')
+        rospy.Subscriber("motors/wheel/l", callback0)
+        rospy.Subscriber("motors/wheel/r", callback1)
+        rospy.Subscriber("motors/ankle/l", callback2)
+        rospy.Subscriber("motors/ankle/r", callback3)
+
         self.drive_motors = []
         self.drive_speed = 2000 #velocity of the drive motors in rpms
         can_host_id = 2 #CAN ID of self
@@ -33,31 +54,36 @@ class control_loop:
                     continue
         #TODO add DC Brushed motors as needed
 
-        self.art_angles = [[0,0,0],[180,180,180],[135,180,135]] #Packed, unpacked (drive forward/backward), turn left/right
-        self.art_angle = 0 #0 = packed, 1 = unpacked, 2 = turn
-        self.speed = 0 #Not sure how to best implement this
+        self.art_hash = -1 # Hash of commands received from ROS. Let's us check if the command has been updated
+        self.drive_hash = -1
         #TODO Add reading/writing the state of the robot from/to a file?
         self.run = True #Tells the control loop to keep running or not
         self.drive_run = False #Keeps track of whether or not the drive motors are running.
         self.drive_current = [[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]] #Tracks average drive motor current draw [running sum of draw, number of samples]
+        self.wheel_left = []
+        self.wheel_right = []
+        self.wheel_update = False
+        self.ankle_left = []
+        self.ankle_right = []
+        self.ankle_update = False
 
     def control(self):
         while self.run:
             # Articulation motor control
-            if node.art_angle != self.art_angle: # node.art_angle will be the ROS node's articulation angle mode
-                self.art_angle = node.art_angle
-                for i in range(2):
-                    for j in range(3):
-                        self.art_motors[3*i+j].setAngle(self.art_angles[self.art_angle][j]) #Yeah indexing is funny...
+            if self.ankle_update: # If the angle is updated by ROS, update the Stepper angles
+                for i in range(3):
+                    self.art_motors[i].setAngle(int(self.ankle_left[i]))
+                    self.art_motors[3+i].setAngle(int(self.ankle_right[i]) #Yeah indexing is funny...
+
             for m in self.art_motors:
                 m.step()
 
             # Drive motor control
-            if node.speed != self.speed: # node.speed will be the ROS node's drive speed. Will decide the units later...
-                self.speed = node.speed
+            if self.wheel_update: # node.speed will be the ROS node's drive speed. Will decide the units later...
                 self.drive_run = True if self.speed != 0 else False
-                for m in self.drive_motors:
-                    m.setVelocity(self.speed) # This is in rpms. If self.speed is not in rpms, then do the appropriate conversions.
+                for i in range(3):
+                    self.drive_motors[i].setVelocityMS(float(self.wheel_right[i])) # This is in rpms. If self.speed is not in rpms, then do the appropriate conversions.
+                    self.drive_motors[3+i].setVelocityMS(float(self.wheel_left[i]))
 
             # Drive motor torque (current) monitoring)
             if self.drive_run:

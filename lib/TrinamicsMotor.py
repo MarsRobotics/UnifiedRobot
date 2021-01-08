@@ -1,11 +1,12 @@
-import time
 import PyTrinamic
 from PyTrinamic.connections.ConnectionManager import ConnectionManager
 from PyTrinamic.modules.TMCM_1670 import TMCM_1670
 
 class TrinamicsMotor:
 
-    def __init__(self, motor_id=1):
+    def __init__(self, motor_id=1, diameter=0.5, gear_ratio=60):
+        self.m_per_sec_convert = 3.14159 * diameter / (gear_ratio * 60)
+        self.rpm_convert = gear_ratio * 60 / (3.14159 * diameter)
         msg = "--interface socketcan_tmcl --host-id 2 --module-id {module}".format(module = motor_id)
         connectionManager = ConnectionManager(msg.split())
         self.myInterface = connectionManager.connect()
@@ -72,6 +73,10 @@ class TrinamicsMotor:
         self.module.setAxisParameter(0, int(pos))
 
     def setVelocity(self, vel):
+        self.module.setAxisParameter(2, int(vel))
+
+    def setVelocityMS(self, vel):
+        speed = vel * self.rpm_convert
         self.module.setAxisParameter(2, int(vel))
 
     def setTorque(self):

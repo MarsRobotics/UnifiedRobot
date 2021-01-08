@@ -1,5 +1,5 @@
 import pigpio
-from time import sleep
+from rospy import sleep
 
 class Stepper:
 
@@ -69,6 +69,7 @@ class Stepper:
         sleep(delay/1000)
         self.pi.write(self.step_pin, 0)
         self.position += 1 if (self.direction == 0) else -1
+        self.step_count -= 1
 
     def getAngle(self):
         self.curr_angle = self.position * 360 / self.steps_per_turn
