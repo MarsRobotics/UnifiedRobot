@@ -1,2 +1,2 @@
-from .Servo import Servo
-from .DCBrushed import DCBrushed
+from .PWM import PWM
+from .Stepper import Stepper
