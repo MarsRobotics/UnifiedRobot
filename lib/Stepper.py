@@ -24,6 +24,7 @@ class Stepper:
         self.position = 0
         self.direction = 0
         self.running = False
+        GPIO.setmode(GPIO.BCM)
 
         self.dis_pin = disable_pin
         self.dir_pin = dir_pin
@@ -65,7 +66,7 @@ class Stepper:
             self.running = False
             return
         GPIO.output(self.step_pin, 1)
-        sleep(delay/1000)
+        sleep(self.delay/1000)
         GPIO.output(self.step_pin, 0)
         self.position += 1 if (self.direction == 0) else -1
         self.step_count -= 1
